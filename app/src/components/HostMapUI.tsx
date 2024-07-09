@@ -136,7 +136,7 @@ function HostMapUI(): React.JSX.Element {
         onChange={handleGroupByChange}
       />
       <Dropdown
-        label="Metric"
+        label="Host Metric"
         options={hostMetricLabels}
         defaultValue="avg_propogation_rate"
         onChange={handleHostMetricChange}
