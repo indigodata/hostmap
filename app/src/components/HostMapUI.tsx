@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Typography } from "@mui/material";
 import HexagonGrid from "./HexagonGrid";
-import GroupByDropdown from "./GroupByDropDown";
-import MetricDropDown from "./MetricDropDown";
+import Dropdown from "./Dropdown";
 import Client from "../lib/backend";
 import {
   Host,
@@ -11,6 +10,7 @@ import {
   OrderedGroupSizes,
 } from "../lib/sharedTypes";
 import { newHostGroups, calculateScaledHostSize } from "../lib/utils";
+import { hostDimensionLabels, hostMetricLabels } from "../lib/dataCatalogue";
 
 function HostMapUI(): React.JSX.Element {
   const [hosts, setHosts] = useState<Host[]>([]);
@@ -110,14 +110,14 @@ function HostMapUI(): React.JSX.Element {
     return colors[4];
   };
 
-  const handleGroupByChange = (selection: HostDimensionEnumType) => {
-    console.log("Group by changed to:", selection);
-    setGroupBy(selection);
+  const handleGroupByChange = (selectedValue: HostDimensionEnumType) => {
+    console.log("Group by changed to:", selectedValue);
+    setGroupBy(selectedValue);
   };
 
-  const handleHostMetricChange = (selection: HostMetricEnumType) => {
-    console.log("Host metric changed to:", selection);
-    setHostMetric(selection);
+  const handleHostMetricChange = (selectedValue: HostMetricEnumType) => {
+    console.log("Host metric changed to:", selectedValue);
+    setHostMetric(selectedValue);
   };
 
   return (
@@ -129,15 +129,24 @@ function HostMapUI(): React.JSX.Element {
         paddingLeft: "30px",
       }}
     >
-      <GroupByDropdown onGroupByChange={handleGroupByChange} />
-      <MetricDropDown onHostMetricChange={handleHostMetricChange} />
+      <Dropdown
+        label="Group By"
+        options={hostDimensionLabels}
+        defaultValue="peer_region"
+        onChange={handleGroupByChange}
+      />
+      <Dropdown
+        label="Metric"
+        options={hostMetricLabels}
+        defaultValue="avg_propogation_rate"
+        onChange={handleHostMetricChange}
+      />
       <div
         key="host-groups"
         className="grid-container"
         style={{
           display: "flex",
-          flexWrap: "wrap", // Allow wrapping
-          // left: `${row.rowStartPosition.x}px`,
+          flexWrap: "wrap",
           width: "100%",
           justifyContent: "flex-start",
           alignItems: "flex-start",
