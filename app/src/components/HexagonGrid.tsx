@@ -1,6 +1,6 @@
-import React from 'react';
-import { Typography } from '@mui/material';
+import React, { useState } from 'react';
 import { Host, HostMetricEnumType } from '../lib/sharedTypes';
+import HostTooltip from './HostTooltip';
 
 interface HexagonGridProps {
   hosts: Host[];
@@ -11,18 +11,22 @@ interface HexagonGridProps {
 }
 
 function HexagonGrid({ hosts, scaledHostSize, getColorForRate, hostMetric, metricQuintiles }: HexagonGridProps) {
-  const [hoveredHost, setHoveredHost] = React.useState<Host | null>(null);
-  const [mousePosition, setMousePosition] = React.useState({ x: 0, y: 0 });
+  const [hoveredHost, setHoveredHost] = useState<Host | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [hoveredColor, setHoveredColor] = useState<string>('');
 
   const hexagonMaxSize = 50;
-  const hexagonSize = Math.min(scaledHostSize, hexagonMaxSize);
   const hexagonMarginPercentage = 0.05;
+  
+  const hexagonSize = Math.min(scaledHostSize, hexagonMaxSize);
   const hexagonMargin = hexagonSize * hexagonMarginPercentage;
   const nodesPerRow = Math.max(3, Math.ceil(Math.sqrt(hosts.length)));
 
   const handleMouseEnter = (host: Host, event: React.MouseEvent) => {
+    const color = getColorForRate(host[hostMetric], metricQuintiles);
     setHoveredHost(host);
     setMousePosition({ x: event.clientX, y: event.clientY });
+    setHoveredColor(color);
   };
 
   const handleMouseLeave = () => {
@@ -76,24 +80,12 @@ function HexagonGrid({ hosts, scaledHostSize, getColorForRate, hostMetric, metri
         </div>
       ))}
       {hoveredHost && (
-        <div
-          style={{
-            position: 'fixed',
-            top: mousePosition.y + 10,
-            left: mousePosition.x + 10,
-            backgroundColor: 'rgba(0, 0, 0)',
-            color: 'white',
-            padding: '10px',
-            borderRadius: '5px',
-            pointerEvents: 'none',
-            zIndex: 1000,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {hexDiv(hoveredHost, '30px')}
-          <Typography variant="body1">Host Metric: {hoveredHost[hostMetric]}</Typography>
-        </div>
+        <HostTooltip
+          host={hoveredHost}
+          hostMetric={hostMetric}
+          hostColor={hoveredColor}
+          position={mousePosition}
+        />
       )}
     </div>
   );
