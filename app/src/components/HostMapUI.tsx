@@ -8,7 +8,7 @@ import {
   Host,
   HostDimensionEnumType,
   HostMetricEnumType,
-  HostFilters,
+  HostFilterType,
   OrderedGroupSizes,
 } from "../lib/sharedTypes";
 import { newHostGroups, calculateScaledHostSize } from "../lib/utils";
@@ -123,7 +123,7 @@ function HostMapUI(): React.JSX.Element {
     setHostMetric(selectedValue);
   };
 
-  const handleFilterApply = (filters: HostFilters) => {
+  const handleFilterApply = (filters: HostFilterType) => {
     // Apply the filters to your data
     console.log("Filters applied:", filters);
   };

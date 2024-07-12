@@ -7,33 +7,28 @@ import {
   InputLabel, 
   Select, 
   MenuItem, 
+  Chip,
+  OutlinedInput,
   SelectChangeEvent 
 } from '@mui/material';
-import { hostDimensionLabels } from '../lib/dataCatalogue';
-import { HostFilters } from '../lib/sharedTypes';
+import { HostDimensionEnum, hostDimensionLabels } from '../lib/dataCatalogue';
+import { HostDimensionEnumType, HostFilterType } from '../lib/sharedTypes';
 
 interface HostFilterFormProps {
-  onFilterApply: (filters: HostFilters) => void;
+  onFilterApply: (filters: HostFilterType) => void;
 }
 
-const initialFilters: HostFilters = {
-  searchTerm: '',
-  country: '',
-  os: '',
-  clientType: '',
-};
+const initialFilters: HostFilterType = Object.values(HostDimensionEnum).reduce((acc, key) => {
+  acc[key] = [];
+  return acc;
+}, {} as HostFilterType);
 
 function HostFilterForm({ onFilterApply }: HostFilterFormProps) {
-  const [filters, setFilters] = useState<HostFilters>(initialFilters);
+  const [filters, setFilters] = useState<HostFilterType>(initialFilters);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectChange = (event: SelectChangeEvent<string>) => {
-    const { name, value } = event.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
+  const handleSelectChange = (event: SelectChangeEvent<string[]>, dimension: HostDimensionEnumType) => {
+    const value = event.target.value as string[];
+    setFilters(prev => ({ ...prev, [dimension]: value }));
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -47,30 +42,30 @@ function HostFilterForm({ onFilterApply }: HostFilterFormProps) {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
-      <TextField
-        name="searchTerm"
-        label="Search"
-        variant="outlined"
-        value={filters.searchTerm}
-        onChange={handleInputChange}
-        size="small"
-      />
-      {Object.entries(hostDimensionLabels).map(([key, label]) => (
-        <FormControl key={key} size="small" sx={{ minWidth: 120 }}>
-          <InputLabel id={`${key}-label`}>{label}</InputLabel>
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2 }}>
+      {Object.values(HostDimensionEnum).map((dimension) => (
+        <FormControl key={dimension} size="small">
+          <InputLabel id={`${dimension}-label`}>{hostDimensionLabels[dimension]}</InputLabel>
           <Select
-            labelId={`${key}-label`}
-            id={key}
-            name={key.replace('peer_', '')}
-            value={filters[key.replace('peer_', '') as keyof HostFilters]}
-            label={label}
-            onChange={handleSelectChange}
+            labelId={`${dimension}-label`}
+            id={dimension}
+            multiple
+            value={filters[dimension]}
+            onChange={(event) => handleSelectChange(event, dimension)}
+            input={<OutlinedInput label={hostDimensionLabels[dimension]} />}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {(selected as string[]).map((value) => (
+                  <Chip key={value} label={value} />
+                ))}
+              </Box>
+            )}
           >
-            <MenuItem value="">Any</MenuItem>
-            {/* Add menu items dynamically based on available options */}
+            {/* Add menu items dynamically based on available options for each dimension */}
             <MenuItem value="option1">Option 1</MenuItem>
             <MenuItem value="option2">Option 2</MenuItem>
+            <MenuItem value="option3">Option 3</MenuItem>
+            <MenuItem value="option4">Option 4</MenuItem>
           </Select>
         </FormControl>
       ))}
