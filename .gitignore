@@ -1,5 +1,7 @@
 node_modules
 
+.aws-sam
+
 # Python
 # Byte-compiled / optimized / DLL files
 __pycache__/
