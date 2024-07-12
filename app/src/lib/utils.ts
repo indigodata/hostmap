@@ -1,6 +1,6 @@
 import { Host, HostDimensionEnumType, OrderedGroupSizes } from "./sharedTypes";
 
-const newHostGroups = (
+const getOrderedGroupSizes = (
   hosts: Host[],
   groupBy: HostDimensionEnumType
 ): OrderedGroupSizes => {
@@ -46,4 +46,4 @@ export function calculateScaledHostSize(
   return Math.floor(finalHexSize);
 }
 
-export { newHostGroups };
+export { getOrderedGroupSizes };

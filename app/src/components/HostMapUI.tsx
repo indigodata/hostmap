@@ -11,8 +11,12 @@ import {
   HostFilterType,
   OrderedGroupSizes,
 } from "../lib/sharedTypes";
-import { newHostGroups, calculateScaledHostSize } from "../lib/utils";
-import { hostDimensionLabels, hostMetricLabels } from "../lib/dataCatalogue";
+import { getOrderedGroupSizes, calculateScaledHostSize } from "../lib/utils";
+import {
+  HostDimensionEnum,
+  hostDimensionLabels,
+  hostMetricLabels,
+} from "../lib/dataCatalogue";
 
 function HostMapUI(): React.JSX.Element {
   const [hosts, setHosts] = useState<Host[]>([]);
@@ -21,6 +25,7 @@ function HostMapUI(): React.JSX.Element {
   const [hostMetric, setHostMetric] = useState<HostMetricEnumType>(
     "avg_propogation_rate"
   );
+  const [dimFilterValues, setDimFilterValues] = useState<HostFilterType>({});
   const [orderedGroupSizes, setOrderedGroupSizes] = useState<OrderedGroupSizes>(
     {}
   );
@@ -40,6 +45,21 @@ function HostMapUI(): React.JSX.Element {
     fetchHosts();
   }, []);
 
+  useEffect(() => {
+    const dimFilterValues = Object.values(HostDimensionEnum).reduce(
+      (acc, dimension) => {
+        acc[dimension] = Array.from(
+          new Set(hosts.map((host) => host[dimension]))
+        )
+          .filter((value) => value !== undefined && value !== null)
+          .sort();
+        return acc;
+      },
+      {} as HostFilterType
+    );
+    setDimFilterValues(dimFilterValues);
+  }, [hosts]);
+
   // Effects Triggered by GroupBy state change
   // (1) Calculate the Host count by the new groupBy dimension
   // (2) Calculate the new scaled host size
@@ -49,7 +69,7 @@ function HostMapUI(): React.JSX.Element {
       return;
     }
 
-    const orderedGroupSizes = newHostGroups(hosts, groupBy);
+    const orderedGroupSizes = getOrderedGroupSizes(hosts, groupBy);
     const totalHosts = hosts.length;
 
     const newScaledHostSize = calculateScaledHostSize(
@@ -128,16 +148,8 @@ function HostMapUI(): React.JSX.Element {
     console.log("Filters applied:", filters);
   };
 
-
-  const dimensionOptions: HostFilterType = {
-    ['peer_country']: ['USA', 'Canada', 'UK', /* ... */],
-    ['peer_os']: ['Windows', 'MacOS', 'Linux', /* ... */],
-    ['peer_client_type']: ['Desktop', 'Mobile', 'Web', /* ... */],
-    // Add options for other dimensions
-  };
-
   return (
-    <Box sx={{ display: "flex", height: '100%' }}>
+    <Box sx={{ display: "flex", height: "100%" }}>
       {/* Sidebar */}
       <Box
         sx={{
@@ -150,7 +162,10 @@ function HostMapUI(): React.JSX.Element {
           borderRight: "1px solid rgba(0, 0, 0, 0.12)",
         }}
       >
-        <HostFilterForm onFilterApply={handleFilterApply} filterOptions={dimensionOptions} />
+        <HostFilterForm
+          onFilterApply={handleFilterApply}
+          filterOptions={dimFilterValues}
+        />
         <Dropdown
           label="Group By"
           options={hostDimensionLabels}
