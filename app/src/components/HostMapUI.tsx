@@ -128,6 +128,14 @@ function HostMapUI(): React.JSX.Element {
     console.log("Filters applied:", filters);
   };
 
+
+  const dimensionOptions: HostFilterType = {
+    ['peer_country']: ['USA', 'Canada', 'UK', /* ... */],
+    ['peer_os']: ['Windows', 'MacOS', 'Linux', /* ... */],
+    ['peer_client_type']: ['Desktop', 'Mobile', 'Web', /* ... */],
+    // Add options for other dimensions
+  };
+
   return (
     <Box sx={{ display: "flex", height: '100%' }}>
       {/* Sidebar */}
@@ -142,7 +150,7 @@ function HostMapUI(): React.JSX.Element {
           borderRight: "1px solid rgba(0, 0, 0, 0.12)",
         }}
       >
-        <HostFilterForm onFilterApply={handleFilterApply} />
+        <HostFilterForm onFilterApply={handleFilterApply} filterOptions={dimensionOptions} />
         <Dropdown
           label="Group By"
           options={hostDimensionLabels}
