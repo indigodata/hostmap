@@ -22,4 +22,10 @@ export type {
   HostDimensionEnumType,
   HostMetricEnumType,
   OrderedGroupSizes
-};
+};export interface HostFilters {
+        searchTerm: string;
+        country: string;
+        os: string;
+        clientType: string;
+    }
+

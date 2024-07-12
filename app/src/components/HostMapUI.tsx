@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import HexagonGrid from "./HexagonGrid";
 import Dropdown from "./Dropdown";
+import HostFilterForm from "./FilterForm";
 import Client from "../lib/backend";
 import {
   Host,
   HostDimensionEnumType,
   HostMetricEnumType,
+  HostFilters,
   OrderedGroupSizes,
 } from "../lib/sharedTypes";
 import { newHostGroups, calculateScaledHostSize } from "../lib/utils";
@@ -27,6 +29,7 @@ function HostMapUI(): React.JSX.Element {
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
   const minBuffer = 20; // Pixels between groups
+  const sidebarWidth = 240;
   const client = new Client();
 
   useEffect(() => {
@@ -91,7 +94,7 @@ function HostMapUI(): React.JSX.Element {
       metricValuesSorted[Math.floor(hostCount * 0.8)],
       metricValuesSorted[Math.floor(hostCount * 0.9)],
     ];
-    
+
     setMetricQuintiles(quintiles);
   }, [hosts, hostMetric]);
 
@@ -120,56 +123,73 @@ function HostMapUI(): React.JSX.Element {
     setHostMetric(selectedValue);
   };
 
+  const handleFilterApply = (filters: HostFilters) => {
+    // Apply the filters to your data
+    console.log("Filters applied:", filters);
+  };
+
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: "100%",
-        paddingLeft: "30px",
-      }}
-    >
-      <Dropdown
-        label="Group By"
-        options={hostDimensionLabels}
-        defaultValue="peer_region"
-        onChange={handleGroupByChange}
-      />
-      <Dropdown
-        label="Host Metric"
-        options={hostMetricLabels}
-        defaultValue="avg_propogation_rate"
-        onChange={handleHostMetricChange}
-      />
-      <div
-        key="host-groups"
-        className="grid-container"
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          width: "100%",
-          justifyContent: "flex-start",
-          alignItems: "flex-start",
-          gridGap: "30px",
+    <Box sx={{ display: "flex", height: '100%' }}>
+      {/* Sidebar */}
+      <Box
+        sx={{
+          width: sidebarWidth,
+          height: "100%",
+          position: "fixed",
+          overflowY: "auto",
+          flexShrink: 0,
+          p: 2,
+          borderRight: "1px solid rgba(0, 0, 0, 0.12)",
         }}
       >
-        {Object.keys(orderedGroupSizes).map((groupLabel) => (
-          <div key={groupLabel} className="group-item">
-            <Typography variant="h6" component="h3" gutterBottom>
-              {groupLabel}
-            </Typography>
+        <HostFilterForm onFilterApply={handleFilterApply} />
+        <Dropdown
+          label="Group By"
+          options={hostDimensionLabels}
+          defaultValue="peer_region"
+          onChange={handleGroupByChange}
+        />
+        <Dropdown
+          label="Host Metric"
+          options={hostMetricLabels}
+          defaultValue="avg_propogation_rate"
+          onChange={handleHostMetricChange}
+        />
+      </Box>
 
-            <HexagonGrid
-              hosts={hosts.filter((host) => host[groupBy] === groupLabel) || []}
-              scaledHostSize={scaledHostSize}
-              getColorForRate={colorScaleFn}
-              hostMetric={hostMetric}
-              metricQuintiles={metricQuintiles}
-            />
-          </div>
-        ))}
-      </div>
-    </div>
+      {/* Main content */}
+      <Box sx={{ flexGrow: 1, p: 3, marginLeft: `${sidebarWidth}px` }}>
+        <div
+          className="grid-container"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            width: "100%",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
+            gap: "30px",
+            paddingLeft: "30px",
+          }}
+        >
+          {Object.keys(orderedGroupSizes).map((groupLabel) => (
+            <div key={groupLabel} className="group-item">
+              <Typography variant="h6" component="h3" gutterBottom>
+                {groupLabel}
+              </Typography>
+              <HexagonGrid
+                hosts={
+                  hosts.filter((host) => host[groupBy] === groupLabel) || []
+                }
+                scaledHostSize={scaledHostSize}
+                getColorForRate={colorScaleFn}
+                hostMetric={hostMetric}
+                metricQuintiles={metricQuintiles}
+              />
+            </div>
+          ))}
+        </div>
+      </Box>
+    </Box>
   );
 }
 
