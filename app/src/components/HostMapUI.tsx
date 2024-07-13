@@ -30,11 +30,12 @@ function HostMapUI(): React.JSX.Element {
     {}
   );
   const [metricQuintiles, setMetricQuintiles] = useState<number[]>([]);
+  const [filteredPeerIds, setFilteredPeerIds] = useState<string[]>([]);
 
-  const screenWidth = window.innerWidth;
-  const screenHeight = window.innerHeight;
   const minBuffer = 20; // Pixels between groups
   const sidebarWidth = 240;
+  const screenWidth = window.innerWidth - sidebarWidth;
+  const screenHeight = window.innerHeight;
   const client = new Client();
 
   useEffect(() => {
@@ -69,11 +70,19 @@ function HostMapUI(): React.JSX.Element {
       return;
     }
 
-    const orderedGroupSizes = getOrderedGroupSizes(hosts, groupBy);
-    const totalHosts = hosts.length;
+    let orderedGroupSizes: OrderedGroupSizes;
+
+    if (filteredPeerIds.length === 0) {
+      orderedGroupSizes = getOrderedGroupSizes(hosts, groupBy);
+    } else {
+      const filteredHosts = hosts.filter((host) =>
+        filteredPeerIds.includes(host.peer_id)
+      );
+      orderedGroupSizes = getOrderedGroupSizes(filteredHosts, groupBy);
+    }
 
     const newScaledHostSize = calculateScaledHostSize(
-      totalHosts,
+      filteredPeerIds.length,
       orderedGroupSizes,
       minBuffer,
       screenWidth,
@@ -82,7 +91,7 @@ function HostMapUI(): React.JSX.Element {
 
     setScaledHostSize(newScaledHostSize);
     setOrderedGroupSizes(orderedGroupSizes);
-  }, [hosts, groupBy]);
+  }, [hosts, groupBy, filteredPeerIds]);
 
   // Effects Triggered by Host Metric state change
   // (1) Sort hosts by the selected metric
@@ -144,8 +153,22 @@ function HostMapUI(): React.JSX.Element {
   };
 
   const handleFilterApply = (filters: HostFilterType) => {
-    // Apply the filters to your data
-    console.log("Filters applied:", filters);
+    // Create an array of host peer_ids that match the filter criteria
+    const filteredPeerIds = hosts.reduce((acc: string[], host) => {
+      const passesFilter = Object.entries(filters).some(
+        ([dimension, filterValues]) => {
+          const typedDimension = dimension as HostDimensionEnumType;
+          return filterValues.includes(host[typedDimension]);
+        }
+      );
+
+      if (passesFilter) {
+        acc.push(host.peer_id);
+      }
+
+      return acc;
+    }, []);
+    setFilteredPeerIds(filteredPeerIds);
   };
 
   return (
@@ -201,7 +224,12 @@ function HostMapUI(): React.JSX.Element {
               </Typography>
               <HexagonGrid
                 hosts={
-                  hosts.filter((host) => host[groupBy] === groupLabel) || []
+                  hosts.filter(
+                    (host) =>
+                      host[groupBy] === groupLabel &&
+                      (filteredPeerIds.length === 0 ||
+                        filteredPeerIds.includes(host.peer_id))
+                  ) || []
                 }
                 scaledHostSize={scaledHostSize}
                 getColorForRate={colorScaleFn}

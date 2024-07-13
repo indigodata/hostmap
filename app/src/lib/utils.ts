@@ -30,12 +30,20 @@ export function calculateScaledHostSize(
   maxHeight: number
 ) {
   const totalArea = maxWidth * maxHeight;
-  const hostGroupEntries = Object.entries(hostGroups)
+  const hostGroupEntries = Object.entries(hostGroups);
 
-  const topTwoGroupWidth =
-    Math.ceil(Math.sqrt(hostGroupEntries[0][1])) +
-    Math.ceil(Math.sqrt(hostGroupEntries[1][1])) +
-    minBuffer;
+  let topTwoGroupWidth = 0;
+
+  if (hostGroupEntries.length === 0) {
+    return maxWidth;
+  } else if (hostGroupEntries.length === 1) {
+    topTwoGroupWidth = Math.ceil(Math.sqrt(hostGroupEntries[0][1])) + minBuffer;
+  } else {
+    topTwoGroupWidth =
+      Math.ceil(Math.sqrt(hostGroupEntries[0][1])) +
+      Math.ceil(Math.sqrt(hostGroupEntries[1][1])) +
+      minBuffer;
+  }
 
   const hexWidth = maxWidth / topTwoGroupWidth;
   const hexagonArea = totalArea / totalHosts;
