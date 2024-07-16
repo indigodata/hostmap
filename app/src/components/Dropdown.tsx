@@ -18,7 +18,7 @@ function Dropdown<T extends string>({ label, options, defaultValue, onChange }: 
   };
 
   return (
-    <FormControl style={{ minWidth: 120, marginBottom: '20px', marginTop: '20px' }}>
+    <FormControl style={{ minWidth: 120, marginBottom: '20px', marginTop: '20px',  width: "100%" }}>
       <InputLabel id={`${label.toLowerCase()}-label`}>{label}</InputLabel>
       <Select<T>
         labelId={`${label.toLowerCase()}-label`}

@@ -177,7 +177,7 @@ function HostMapUI(): React.JSX.Element {
       <Box
         sx={{
           width: sidebarWidth,
-          height: "100%",
+          height: "90%",
           position: "fixed",
           overflowY: "auto",
           flexShrink: 0,
@@ -185,10 +185,6 @@ function HostMapUI(): React.JSX.Element {
           borderRight: "1px solid rgba(0, 0, 0, 0.12)",
         }}
       >
-        <HostFilterForm
-          onFilterApply={handleFilterApply}
-          filterOptions={dimFilterValues}
-        />
         <Dropdown
           label="Group By"
           options={hostDimensionLabels}
@@ -196,10 +192,14 @@ function HostMapUI(): React.JSX.Element {
           onChange={handleGroupByChange}
         />
         <Dropdown
-          label="Host Metric"
+          label="Host Color"
           options={hostMetricLabels}
           defaultValue="avg_propogation_rate"
           onChange={handleHostMetricChange}
+        />
+        <HostFilterForm
+          onFilterApply={handleFilterApply}
+          filterOptions={dimFilterValues}
         />
       </Box>
 

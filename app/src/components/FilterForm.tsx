@@ -6,6 +6,7 @@ import {
   Chip,
   Autocomplete,
   TextField,
+  InputLabel,
 } from "@mui/material";
 import { hostDimensionLabels } from "../lib/dataCatalogue";
 import { HostDimensionEnumType, HostFilterType } from "../lib/sharedTypes";
@@ -47,6 +48,7 @@ function HostFilterForm({ onFilterApply, filterOptions }: HostFilterFormProps) {
       }
     });
     onFilterApply(appliedFilters);
+    console.log("Applied filters:", appliedFilters);
   };
 
   const handleReset = () => {
@@ -58,12 +60,24 @@ function HostFilterForm({ onFilterApply, filterOptions }: HostFilterFormProps) {
     onFilterApply({});
   };
 
+  const handlePaste = (dimension: HostDimensionEnumType, event: React.ClipboardEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const pastedText = event.clipboardData.getData('text');
+    const pastedValues = pastedText.split(/[,\s]+/).filter(Boolean); // Split by commas or whitespace
+
+    setFilters(prev => ({
+        ...prev,
+        [dimension]: [...new Set([...(prev[dimension] || []), ...pastedValues])]
+    }));
+  };
+
   return (
     <Box
       component="form"
       onSubmit={handleSubmit}
       sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 2 }}
     >
+      <InputLabel id={`filter-label`}>Host Filters</InputLabel>
       {(Object.keys(filterOptions) as HostDimensionEnumType[]).map(
         (dimension) => (
           <FormControl key={dimension} size="small">
@@ -78,6 +92,7 @@ function HostFilterForm({ onFilterApply, filterOptions }: HostFilterFormProps) {
                   {...params}
                   label={hostDimensionLabels[dimension]}
                   variant="outlined"
+                  onPaste={(event) => handlePaste(dimension, event)}
                 />
               )}
               renderTags={(value: string[], getTagProps) =>

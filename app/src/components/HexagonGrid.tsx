@@ -15,7 +15,7 @@ function HexagonGrid({ hosts, scaledHostSize, getColorForRate, hostMetric, metri
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [hoveredColor, setHoveredColor] = useState<string>('');
 
-  const hexagonMaxSize = 50;
+  const hexagonMaxSize = 100;
   const hexagonMarginPercentage = 0.05;
   
   const hexagonSize = Math.min(scaledHostSize, hexagonMaxSize);
