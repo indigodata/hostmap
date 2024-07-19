@@ -32,9 +32,9 @@ function HostMapUI(): React.JSX.Element {
   const [metricQuintiles, setMetricQuintiles] = useState<number[]>([]);
   const [filteredPeerIds, setFilteredPeerIds] = useState<string[]>([]);
 
-  const minBuffer = 20; // Pixels between groups
+  const minBuffer = 1; // Host gap between groups
   const sidebarWidth = 240;
-  const screenWidth = window.innerWidth - sidebarWidth;
+  const screenWidth = window.innerWidth - sidebarWidth - 100;
   const screenHeight = window.innerHeight;
   const client = new Client();
 
@@ -155,7 +155,7 @@ function HostMapUI(): React.JSX.Element {
   const handleFilterApply = (filters: HostFilterType) => {
     // Create an array of host peer_ids that match the filter criteria
     const filteredPeerIds = hosts.reduce((acc: string[], host) => {
-      const passesFilter = Object.entries(filters).some(
+      const passesFilter = Object.entries(filters).every(
         ([dimension, filterValues]) => {
           const typedDimension = dimension as HostDimensionEnumType;
           return filterValues.includes(host[typedDimension]);

@@ -15,10 +15,9 @@ function HexagonGrid({ hosts, scaledHostSize, getColorForRate, hostMetric, metri
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [hoveredColor, setHoveredColor] = useState<string>('');
 
-  const hexagonMaxSize = 100;
   const hexagonMarginPercentage = 0.05;
   
-  const hexagonSize = Math.min(scaledHostSize, hexagonMaxSize);
+  const hexagonSize = scaledHostSize;
   const hexagonMargin = hexagonSize * hexagonMarginPercentage;
   const nodesPerRow = Math.max(3, Math.ceil(Math.sqrt(hosts.length)));
 
@@ -63,6 +62,7 @@ function HexagonGrid({ hosts, scaledHostSize, getColorForRate, hostMetric, metri
         alignItems: 'flex-start',
         justifyContent: 'center',
         height: '100%',
+        paddingLeft: `${hexagonSize / 2}px`,
       }}
     >
       {Array.from({ length: Math.ceil(hosts.length / nodesPerRow) }, (_, rowIndex) => (

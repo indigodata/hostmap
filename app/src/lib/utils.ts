@@ -29,6 +29,7 @@ export function calculateScaledHostSize(
   maxWidth: number,
   maxHeight: number
 ) {
+  const hostMaxSize = 100;
   const totalArea = maxWidth * maxHeight;
   const hostGroupEntries = Object.entries(hostGroups);
 
@@ -49,7 +50,7 @@ export function calculateScaledHostSize(
   const hexagonArea = totalArea / totalHosts;
 
   const hexagonSize = Math.sqrt(hexagonArea / 0.866);
-  const finalHexSize = Math.min(hexWidth, hexagonSize);
+  const finalHexSize = Math.min(hexWidth, hexagonSize, hostMaxSize);
 
   return Math.floor(finalHexSize);
 }
